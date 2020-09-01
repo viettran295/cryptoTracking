@@ -8,8 +8,6 @@ end_date = datetime.now()
 start_date = datetime(2020, 8, 1)
 BTC = pdr.DataReader(name="BTC-USD", data_source="yahoo", start = start_date, end = end_date)
 ETH = pdr.DataReader("ETH-USD", "yahoo", start_date, end_date)
-print(end_date)
-print(BTC)
 
 ma_days = [13,34]
 for ma in ma_days:
