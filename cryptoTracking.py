@@ -9,6 +9,7 @@ start_date = datetime(2020, 1, 1)
 BTC = pdr.DataReader(name="BTC-USD", data_source="yahoo", start = start_date, end = end_date)
 ETH = pdr.DataReader("ETH-USD", "yahoo", start_date, end_date)
 print(BTC)
+print(ETH)
 
 ma_days = [13,34]
 for ma in ma_days:
