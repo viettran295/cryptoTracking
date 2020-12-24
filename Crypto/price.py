@@ -23,4 +23,4 @@ while True:
     if last_price_ETH != updated_price_ETH:
         print('price ETH: ', updated_price_ETH)
         last_price_ETH = updated_price_ETH
-    time.sleep(10)
+    time.sleep(3600)
