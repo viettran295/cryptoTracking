@@ -1,5 +1,9 @@
 import pandas as pd
 import os
+from sklearn import preprocessing
+from collections import deque
+import random
+import numpy as np 
 
 SEQ_len = 60
 PERIOD_PREDICT = 3
@@ -10,6 +14,27 @@ def Classify(current, future):
         return 1
     else:
         return 0
+
+#normalization 
+def preprocess_df(df):
+    df = df.drop('future',1)
+    for col in df.columns:
+        if col != 'target':
+            df[col] = df[col].pct_change()
+            df.dropna(inplace=True)
+            df[col] = preprocessing.scale(df[col].values)
+    df.dropna(inplace=True)
+    sequential_data = []
+    prev_days = deque(maxlen= SEQ_len)
+    print(df.head())
+    for c in df.columns:
+        print(c)
+    for i in df.values:
+        prev_days.append([n for n in i[:-1]])
+        if len(prev_days) == SEQ_len:
+            sequential_data.append([np.array(prev_days), i[-1]]) 
+    random.shuffle(sequential_data)
+
 
 main_df = pd.DataFrame()
 ratios = ['BTC_USD', 'ETH_USD']
@@ -31,4 +56,11 @@ main_df['target'] = list(map(Classify, main_df[f"{RATIO_TO_PREDICT}_Close"], mai
 
 times = sorted(main_df.index.values)
 last_5 = times[-int(0.05*len(times))]
-print(last_5)
+
+
+validation_main_df = main_df[(main_df.index >= last_5)]
+main_df = main_df[(main_df.index < last_5)]
+
+preprocess_df(main_df)
+#train_x, train_y = preprocess_df(main_df)
+#valid_x, valid_y = preprocess_df(valid_main_df)
