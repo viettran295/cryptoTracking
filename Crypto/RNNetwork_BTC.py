@@ -20,8 +20,11 @@ def preprocess_df(df):
     df = df.drop('future',1)
     for col in df.columns:
         if col != 'target':
-            df[col] = df[col].pct_change()
+            #percentage change between current and prior element
+            df[col] = df[col].pct_change() 
+            #remove missing value
             df.dropna(inplace=True)
+            #normalize
             df[col] = preprocessing.scale(df[col].values)
     df.dropna(inplace=True)
     sequential_data = []
@@ -41,7 +44,6 @@ ratios = ['BTC_USD', 'ETH_USD']
 for ratio in ratios:
     dataset = f"C:\\Users\\viet tran\\Desktop\\Python\\Crypto\\{ratio}.csv"
     df = pd.read_csv(dataset)
-    #print(df.head())
     df.rename(columns={'Closing Price (USD)':f"{ratio}_Close"}, inplace=True)
     df = df[[f"{ratio}_Close"]]
     if len(main_df) == 0:
@@ -52,8 +54,6 @@ for ratio in ratios:
 main_df['future'] = main_df[f"{RATIO_TO_PREDICT}_Close"].shift(-PERIOD_PREDICT)
 main_df['target'] = list(map(Classify, main_df[f"{RATIO_TO_PREDICT}_Close"], main_df['future']))
 
-#print(main_df[[f"{RATIO_TO_PREDICT}_Close", "future", "target"]].head(20))
-
 times = sorted(main_df.index.values)
 last_5 = times[-int(0.05*len(times))]
 
@@ -61,6 +61,9 @@ last_5 = times[-int(0.05*len(times))]
 validation_main_df = main_df[(main_df.index >= last_5)]
 main_df = main_df[(main_df.index < last_5)]
 
-preprocess_df(main_df)
-#train_x, train_y = preprocess_df(main_df)
-#valid_x, valid_y = preprocess_df(valid_main_df)
+train_x, train_y = preprocess_df(main_df)
+valid_x, valid_y = preprocess_df(valid_main_df)
+
+print(f"Train data: {len(train_x)} validation: {len(valid_x)}")
+print(f"no buy: {train_y.count(0)}, buys: {train_y.count(1)}")
+print(f"validation dont buy: {validation_y.count(0)}, buy: {validation_y.count(1)}")
