@@ -29,14 +29,34 @@ def preprocess_df(df):
     df.dropna(inplace=True)
     sequential_data = []
     prev_days = deque(maxlen= SEQ_len)
-    print(df.head())
-    for c in df.columns:
-        print(c)
     for i in df.values:
         prev_days.append([n for n in i[:-1]])
         if len(prev_days) == SEQ_len:
             sequential_data.append([np.array(prev_days), i[-1]]) 
+   
     random.shuffle(sequential_data)
+
+    buys = []
+    sells = []
+    for seq, target in sequential_data:
+        if target == 0:
+            sells.append([seq, target])
+        elif target == 1:
+            buys.append([seq, target])
+ 
+    lower = min(len(buys), len(sells))
+    
+    buys = buys[:lower]
+    sells = sells[:lower]
+    sequential_data = buys+sells
+
+    X = []
+    y = []
+    for seq, target in sequential_data:
+        X.append(seq)
+        y.append(target)
+
+    return np.array(X), y
 
 
 main_df = pd.DataFrame()
@@ -62,8 +82,8 @@ validation_main_df = main_df[(main_df.index >= last_5)]
 main_df = main_df[(main_df.index < last_5)]
 
 train_x, train_y = preprocess_df(main_df)
-valid_x, valid_y = preprocess_df(valid_main_df)
+#valid_x, valid_y = preprocess_df(validation_main_df)
 
-print(f"Train data: {len(train_x)} validation: {len(valid_x)}")
-print(f"no buy: {train_y.count(0)}, buys: {train_y.count(1)}")
-print(f"validation dont buy: {validation_y.count(0)}, buy: {validation_y.count(1)}")
+#print(f"Train data: {len(train_x)} validation: {len(valid_x)}")
+print(f"dont buy: {train_y.count(0)}, buys: {train_y.count(1)}")
+#print(f"validation dont buy: {validation_y.count(0)}, buy: {validation_y.count(1)}")
